@@ -22,10 +22,10 @@ if(row == None):
 else:
     print("Skriv inn din kaffesmaking")
 
-#Input fra brukerens side er brenneri, kaffenavn, poeng og smaksnotat.
+# Input fra brukerens side er brenneri, kaffenavn, poeng og smaksnotat.
 
 
-#Her kommer utspørringene i guess?
+# Her kommer utspørringene i guess?
 # cursor.execute('''INSERT INTO bruker VALUES ('ola@nordmann.no', 'password1', 'Ola', 'Nordmann')''')
 con.commit()
 
