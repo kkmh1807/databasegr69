@@ -1,5 +1,8 @@
+from besteKjøp import besteKjøp
 import logIn
 import kaffeSmaking
+from topplisteKaffesmakinger import topplisteKaffesmakinger
+from søkEtterKaffe import søkEtterKaffe
 
 print("Heihei, velkommen til kaffedatabase")
 
@@ -11,8 +14,11 @@ email = logIn.login()
 
 def chooseAction():
     print("""Velg neste handling:
-            k - ny kaffesmaking
-            s - se kaffesmakinger
+            n - ny kaffesmaking
+            k - se kaffesmakinger
+            t - toppliste kaffesmakinger i år
+            b - toppliste beste kjøp
+            s - søk etter kaffe
             l - logg ut""")
     return input("Ditt valg: ")
 
@@ -21,10 +27,16 @@ def chooseAction():
 choice = chooseAction()
 
 while(choice != "l"):
-    if (choice == "k"):
+    if (choice == "n"):
         kaffeSmaking.nyKaffeSmaking(email)
-    elif (choice == "s"):
+    elif (choice == "k"):
         kaffeSmaking.seKaffeSmakinger()
+    elif (choice == "t"):
+        topplisteKaffesmakinger()
+    elif (choice == "b"):
+        besteKjøp()
+    elif (choice == "s"):
+        søkEtterKaffe()
 
     # Bruker får velge ny handling
     choice = chooseAction()
