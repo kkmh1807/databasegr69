@@ -6,7 +6,6 @@ from sympy import DenseNDimArray
 
 # Denne filen oppfyller brukerhistorie 2.
 
-
 def topplisteKaffesmakinger():
 
     con = sqlite3.connect("kaffe.db")

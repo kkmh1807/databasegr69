@@ -16,7 +16,7 @@ def chooseAction():
     print("""Velg neste handling:
             n - ny kaffesmaking
             k - se kaffesmakinger
-            t - toppliste kaffesmakinger i år
+            t - toppliste kaffesmakere i år
             b - toppliste beste kjøp
             s - søk etter kaffe
             l - logg ut""")
