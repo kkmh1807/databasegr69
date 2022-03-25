@@ -5,13 +5,17 @@ import textwrap
 from sympy import DenseNDimArray
 
 # Denne filen oppfyller brukerhistorie 2.
+# Funksjonen skriver ut en liste over hvilke brukere som
+# har smakt flest unike kaffer så langt i år, sortert synkende
 
-def topplisteKaffesmakinger():
+def topCoffeTasters():
 
+    # Kobler til databasen
     con = sqlite3.connect("kaffe.db")
     con.row_factory = sqlite3.Row
     cursor = con.cursor()
 
+    # Utfører SQL spørringen mot databasen
     cursor.execute(
         """SELECT Bruker.fornavn, Bruker.etternavn, Bruker.epost, count(DISTINCT Kaffesmaking.kaffeID) as antallKaffesmakinger
         FROM Bruker, Kaffesmaking
@@ -25,15 +29,15 @@ def topplisteKaffesmakinger():
         print("Det finnes ingen kaffesmakinger i år!")
         return
 
+    # Resultatet printes ut med pen overskrift og fint format
     print("Toppliste over hvilke brukere som har smakt flest unike kaffer så langt i år, sortert synkende:")
-
     ind = 1
     for row in coffeeList:
-        prefix = "Nr." + str(ind) + ": "
+        prefix = "Nr." + str(ind) + ": " # Prefix som viser hvilken plass brukeren kom på
         ind += 1
-        preferredWidth = 70
+        preferredWidth = 70 # Bredden på utprintfeltet
         wrapper = textwrap.TextWrapper(initial_indent=prefix, width=preferredWidth,
-                                       subsequent_indent=' '*len(prefix))
+                                       subsequent_indent=' '*len(prefix)) # Fint utskriftformat
         print(wrapper.fill(
             "{firstName} {lastName}({email}) har smakt {numberOfCoffees} unike kaffer så langt i år."
             .format(firstName=row['fornavn'], lastName=row['etternavn'], email=row['epost'],
@@ -44,7 +48,7 @@ def topplisteKaffesmakinger():
 
 
 def main():
-    topplisteKaffesmakinger()
+    topCoffeTasters()
 
 
 if __name__ == "__main__":

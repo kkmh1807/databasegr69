@@ -1,17 +1,16 @@
-from besteKjøp import besteKjøp
-import logIn
-from kaffeSmaking import nyKaffeSmaking
+from bestBuy import bestBuy
+from login import login
+from newCoffeeTasting import newCoffeeTasting
 from seeCoffeeTastings import seeCoffeeTastings
-from topplisteKaffesmakinger import topplisteKaffesmakinger
-from søkEtterKaffe import søkEtterKaffe
+from topCoffeTasters import topCoffeTasters
+from searchForCoffee import searchForCoffee
 
 print("Heihei, velkommen til kaffedatabase")
 
-# Bruker logges inn, epost returneres
-email = logIn.login()
+# Bruker logges inn, epost returneres og tas vare på
+email = login()
 
 # Funksjon for å la bruker velge en handling
-
 def chooseAction():
     print("""Velg neste handling:
             n - ny kaffesmaking
@@ -26,17 +25,19 @@ def chooseAction():
 # Bruker får velge handling
 choice = chooseAction()
 
+# Dette er hovedprogrammet, som fortsetter å loope så lenge brukeren
+# ikke skriver inn "l".
 while(choice != "l"):
     if (choice == "n"):
-        nyKaffeSmaking(email)
+        newCoffeeTasting(email)
     elif (choice == "k"):
         seeCoffeeTastings()
     elif (choice == "t"):
-        topplisteKaffesmakinger()
+        topCoffeTasters()
     elif (choice == "b"):
-        besteKjøp()
+        bestBuy()
     elif (choice == "s"):
-        søkEtterKaffe()
+        searchForCoffee()
 
     # Bruker får velge ny handling
     choice = chooseAction()

@@ -2,14 +2,20 @@ import sqlite3
 import textwrap
 from datetime import date
 
+# Denne filen, sammen med filen "newCoffeeTasting" oppfyller brukerhistorie 1.
+# En bruker se kaffesmakinger som er lagt ut. Funksjonen henter ut både
+# brukerinput om smaksnotat og poeng, men også all annen relevant informasjon om
+# kaffen som er blitt smakt.
 def seeCoffeeTastings():
 
     print("Kaffesmakinger:")
 
+    # Kobler til databasen
     con = sqlite3.connect("kaffe.db")
     con.row_factory = sqlite3.Row
     cursor = con.cursor()
 
+    # Utfører SQL spørringen mot databasen
     cursor.execute("""SELECT smaksnotater, poeng, brenningsgrad, KS.dato as smakingsdato, K.dato as brenningsdato,
                     K.beskrivelse, kaffenavn, kiloprisKR, kaffebrenneri, innhøstingsår, kiloprisTilGårdUSD,
                     F.navn as foredlingsmetodenavn, KB.bønnenavn, KB.artsnavn, KG.høydeOverHavet,
@@ -22,12 +28,13 @@ def seeCoffeeTastings():
                     and KS.epost = B.epost""")
     coffeeList = cursor.fetchall()
 
+    # For hver rad i resultatet skriver vi ut en kaffesmaking i pent format
     for row in coffeeList:
-        date = row[3]
+        date = row[3] # Prefix som viser hvilken dato kaffen ble smakt på
         prefix = date + ": "
-        preferredWidth = 70
+        preferredWidth = 70 # Bredden på utprintfeltet
         wrapper = textwrap.TextWrapper(initial_indent=prefix, width=preferredWidth,
-                                       subsequent_indent=' '*len(prefix))
+                                       subsequent_indent=' '*len(prefix)) # Fint utskriftformat
         print(wrapper.fill(
             """{firstName} {lastName} ({email}) smaker kaffen
             {coffeeName} fra {roastery} (brent {burnDate}), gir den {points} poeng og skriver

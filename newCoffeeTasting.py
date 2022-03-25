@@ -6,29 +6,24 @@ from pip import main
 from datetime import date
 
 
-# Denne filen oppfyller brukerhistorie 1, ved å implementere funksjonene nyKaffeSmaking og seKaffeSmakinger.
-# Dermed kan en bruker legge til nye kaffesmakinger og se kaffesmakinger som er lagt ut. SeKaffeSmakinger
-# funksjonen henter ut både brukerinput om smaksnotat og poeng, men også all annen relevant informasjon om
-# kaffen som er blitt smakt.
-
-
-def nyKaffeSmaking(epost):
+# Denne filen, sammen med filen "seeCoffeeTastings" oppfyller brukerhistorie 1.
+# Med funksjonen kan en bruker legge til nye kaffesmakinger.
+def newCoffeeTasting(email):
 
     print("Skriv inn din kaffesmaking")
 
-   # input er brenneri, kaffenavn, poeng, dato og smaksnotat
-
     # Få inn brukerinput
-    brenneri = input("Brenneri: ")
-    kaffenavn = input("Kaffenavn: ")
+    roastery = input("Brenneri: ")
+    coffeeName = input("Kaffenavn: ")
 
     # Kobler til databasen
     con = sqlite3.connect("kaffe.db")
     cursor = con.cursor()
 
-    # Basert på brukerinput prøver vi å finne en kaffe som samsvarer.
+    # Basert på brukerinput prøver vi å finne en kaffe som samsvarer. Vi utfører SQL spørringen mot databasen
+
     cursor.execute(
-        "SELECT kaffeID, dato FROM Kaffe WHERE kaffebrenneri = ? and  kaffenavn = ?;", (brenneri, kaffenavn, ))
+        "SELECT kaffeID, dato FROM Kaffe WHERE kaffebrenneri = ? and  kaffenavn = ?;", (roastery, coffeeName, ))
     coffeeList = cursor.fetchall()
 
 
@@ -54,34 +49,41 @@ def nyKaffeSmaking(epost):
             # row[0] er kaffeID og row[2] er dato
             coffeeBurnDates[row[0]] = row[1]
 
-        dato = ""
+        burnDate = ""
         print("Skriv inn brenningsdato for din kaffe. De mulige datoene er: ")
         for row in coffeeList:
             print(row[1])
-        dato = input("Dato(YYYY-MM-DD): ")
-        while (not dato in coffeeBurnDates.values()):
+        burnDate = input("Dato(YYYY-MM-DD): ")
+        while (not burnDate in coffeeBurnDates.values()):
             print("Ugyldig dato, prøv igjen")
-            dato = input("Dato(YYYY-MM-DD): ")
+            burnDate = input("Dato(YYYY-MM-DD): ")
 
         # Finner kaffeID som hører til valgt dato
         coffeeIDs = list(coffeeBurnDates.keys())
         dates = list(coffeeBurnDates.values())
-        position = coffeeIDs.index(dato)
-        coffeeID = dates[position]
+        position = dates.index(burnDate)
+        coffeeID = coffeeIDs[position]
 
     # Nå har man hentet ut riktig kaffe for kaffesmakingen, og vi
     # fortsetter å hente brukerinput for poeng og smaksnotat.
-    poeng = input("Poeng: ")
-    while(not poeng.isdigit and 0 <= poeng <= 10):
+    points = input("Poeng: ")
+    while(not points.isdigit and 0 <= points <= 10):
         print("Ugyldig poeng, prøv igjen")
-        poeng = input("Poeng: ")
-    smaksnotat = input("Smaksnotat: ")
+        points = input("Poeng: ")
+    tasteNotes = input("Smaksnotat: ")
 
     # All brukerinput er hentet ut, og vi kjører sql spørring for
     # å sette inn kaffesmakingen.
-    script = 'INSERT INTO kaffesmaking  (kaffesmakingID, smaksnotater,  poeng, dato, epost, kaffeID) VALUES (?, ?, ?, ?, ?, ?)'
-    cursor.execute(script, (random.randint(0, 1000000000),
-                            smaksnotat, poeng, date.today(), epost, coffeeID))
+    script = "INSERT INTO kaffesmaking  (kaffesmakingID, smaksnotater,  poeng, dato, epost, kaffeID) VALUES (?, ?, ?, ?, ?, ?)"
+    cursor.execute(script, (random.randint(0, 1000000000), tasteNotes, points, date.today(), email, coffeeID))
 
     con.commit()
     con.close()
+
+
+def main():
+    newCoffeeTasting()
+
+
+if __name__ == "__main__":
+    main()
