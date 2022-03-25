@@ -3,6 +3,8 @@ import random
 import textwrap
 from tkinter.tix import MAIN
 from pip import main
+from datetime import date
+
 
 # Denne filen oppfyller brukerhistorie 1, ved å implementere funksjonene nyKaffeSmaking og seKaffeSmakinger.
 # Dermed kan en bruker legge til nye kaffesmakinger og se kaffesmakinger som er lagt ut. SeKaffeSmakinger
@@ -20,48 +22,66 @@ def nyKaffeSmaking(epost):
     brenneri = input("Brenneri: ")
     kaffenavn = input("Kaffenavn: ")
 
+    # Kobler til databasen
     con = sqlite3.connect("kaffe.db")
-
     cursor = con.cursor()
 
+    # Basert på brukerinput prøver vi å finne en kaffe som samsvarer.
     cursor.execute(
-        "SELECT * FROM Kaffe WHERE kaffebrenneri = ? and  kaffenavn = ?;", (brenneri, kaffenavn, ))
+        "SELECT kaffeID, dato FROM Kaffe WHERE kaffebrenneri = ? and  kaffenavn = ?;", (brenneri, kaffenavn, ))
     coffeeList = cursor.fetchall()
 
+
+    # Vi skal nå finne riktig kaffeID. Vi har nå fått tilbake et uvisst antall kaffe
+    # basert på sql spørring med kaffebrenneri og kaffenavn som input. Brenningsdato
+    # trengs dersom det er flere versjoner av samme kaffe.
+    coffeeID = ""
     if(coffeeList == None or len(coffeeList) == 0):
+        # Dersom det ikke finnes noen kaffe som samsvarer med brukerinput
+        # vil en feilmelding printes til bruker og kaffesmakingen avbrytes.
         print("Fant ingen kaffe. ")
         return
+    # Dersom det kun finnes 1 kaffe i listen har vi allerede funnet
+    # riktig kaffe og har da riktig kaffeID.
+    elif len(coffeeList) == 1:
+        coffeeID = coffeeList[0][0]
+    # Det finnes altså flere kaffe i listen, og vi må da få brukerinput på
+    # brenningsdato for å identifisere riktig kaffe.
+    else:
+        # Oppretter en liste over brenningsdatoer for kaffen.
+        coffeeBurnDates = {}
+        for row in coffeeList:
+            # row[0] er kaffeID og row[2] er dato
+            coffeeBurnDates[row[0]] = row[1]
 
+        dato = ""
+        print("Skriv inn brenningsdato for din kaffe. De mulige datoene er: ")
+        for row in coffeeList:
+            print(row[1])
+        dato = input("Dato(YYYY-MM-DD): ")
+        while (not dato in coffeeBurnDates.values()):
+            print("Ugyldig dato, prøv igjen")
+            dato = input("Dato(YYYY-MM-DD): ")
+
+        # Finner kaffeID som hører til valgt dato
+        coffeeIDs = list(coffeeBurnDates.keys())
+        dates = list(coffeeBurnDates.values())
+        position = val_list.index(dato)
+        coffeeID = key_list[position]
+
+    # Nå har man hentet ut riktig kaffe for kaffesmakingen, og vi
+    # fortsetter å hente brukerinput for poeng og smaksnotat.
     poeng = input("Poeng: ")
     while(not poeng.isdigit and 0 <= poeng <= 10):
         print("Ugyldig poeng, prøv igjen")
         poeng = input("Poeng: ")
     smaksnotat = input("Smaksnotat: ")
 
-    coffeeDictionary = {}
-    for row in coffeeList:
-        # row[0] er kaffeID og row[2] er dato
-        coffeeDictionary[row[0]] = row[2]
-
-    dato = ""
-    if len(coffeeDictionary) > 1:
-        print("Skriv inn brenningsdato for din kaffe. De mulige datoene er: ")
-        for kaffeID in coffeeDictionary:
-            print(coffeeDictionary[kaffeID])
-        dato = input("Dato(YYYY-MM-DD): ")
-        while (not dato in coffeeDictionary.values()):
-            print("Ugyldig dato, prøv igjen")
-            dato = input("Dato(YYYY-MM-DD): ")
-
-    # Finner kaffeID som hører til dato valgt
-    key_list = list(coffeeDictionary.keys())
-    val_list = list(coffeeDictionary.values())
-    position = val_list.index(dato)
-    kaffeID = key_list[position]
-
+    # All brukerinput er hentet ut, og vi kjører sql spørring for
+    # å sette inn kaffesmakingen.
     script = 'INSERT INTO kaffesmaking  (kaffesmakingID, smaksnotater,  poeng, dato, epost, kaffeID) VALUES (?, ?, ?, ?, ?, ?)'
     cursor.execute(script, (random.randint(0, 1000000000),
-                            smaksnotat, poeng, dato, epost, kaffeID))
+                            smaksnotat, poeng, date.today(), epost, coffeeID))
 
     con.commit()
     con.close()
