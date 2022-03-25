@@ -9,21 +9,23 @@ from sympy import DenseNDimArray
 def topplisteKaffesmakinger():
 
     con = sqlite3.connect("kaffe.db")
+    con.row_factory = sqlite3.Row
     cursor = con.cursor()
 
     cursor.execute(
-        """SELECT Bruker.fornavn, Bruker.etternavn, Bruker.epost, count(DISTINCT Kaffesmaking.kaffeID)
+        """SELECT Bruker.fornavn, Bruker.etternavn, Bruker.epost, count(DISTINCT Kaffesmaking.kaffeID) as antallKaffesmakinger
         FROM Bruker, Kaffesmaking
-        WHERE Kaffesmaking.epost = Bruker.epost and Kaffesmaking.dato > '{}-12-31'
+        WHERE Kaffesmaking.epost = Bruker.epost and Kaffesmaking.dato > '{lastYear}-12-31'
         GROUP BY Kaffesmaking.epost
-        ORDER BY count(DISTINCT Kaffesmaking.kaffeID) DESC""".format(int(date.today().year)-1))
+        ORDER BY count(DISTINCT Kaffesmaking.kaffeID) DESC"""
+        .format(lastYear=int(date.today().year)-1))
     coffeeList = cursor.fetchall()
 
     if(coffeeList == None or len(coffeeList) == 0):
         print("Det finnes ingen kaffesmakinger i år!")
         return
-    else:
-        print("Toppliste over hvilke brukere som har smakt flest unike kaffer så langt i år, sortert synkende:")
+
+    print("Toppliste over hvilke brukere som har smakt flest unike kaffer så langt i år, sortert synkende:")
 
     ind = 1
     for row in coffeeList:
@@ -33,7 +35,9 @@ def topplisteKaffesmakinger():
         wrapper = textwrap.TextWrapper(initial_indent=prefix, width=preferredWidth,
                                        subsequent_indent=' '*len(prefix))
         print(wrapper.fill(
-            "{} {}({}) har smakt {} unike kaffer så langt i år.".format(row[0], row[1], row[2], row[3])))
+            "{firstName} {lastName}({email}) har smakt {numberOfCoffees} unike kaffer så langt i år."
+            .format(firstName=row['fornavn'], lastName=row['etternavn'], email=row['epost'],
+            numberOfCoffees=row['antallKaffesmakinger'])))
 
     con.commit()
     con.close()

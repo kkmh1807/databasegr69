@@ -1,6 +1,7 @@
 from besteKjøp import besteKjøp
 import logIn
-import kaffeSmaking
+from kaffeSmaking import nyKaffeSmaking
+from seeCoffeeTastings import seeCoffeeTastings
 from topplisteKaffesmakinger import topplisteKaffesmakinger
 from søkEtterKaffe import søkEtterKaffe
 
@@ -27,9 +28,9 @@ choice = chooseAction()
 
 while(choice != "l"):
     if (choice == "n"):
-        kaffeSmaking.nyKaffeSmaking(email)
+        nyKaffeSmaking(email)
     elif (choice == "k"):
-        kaffeSmaking.seKaffeSmakinger()
+        seeCoffeeTastings()
     elif (choice == "t"):
         topplisteKaffesmakinger()
     elif (choice == "b"):

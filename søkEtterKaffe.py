@@ -12,6 +12,7 @@ def søkEtterKaffe():
     searchProsessingSQL = ""
 
     con = sqlite3.connect("kaffe.db")
+    con.row_factory = sqlite3.Row
     cursor = con.cursor()
 
     print("Her kan du søke etter kaffe")
@@ -58,10 +59,11 @@ def søkEtterKaffe():
     # resterende sql koden som er unik for hver brukerhistore blir lagt til med
     # .format funksjonen.
     cursor.execute(
-        """SELECT K.kaffenavn, K.kaffebrenneri
+        """SELECT K.kaffenavn, K.kaffebrenneri, K.dato as brennedato
             FROM Kaffe as K, KaffebønneParti as P, Foredlingsmetode as F, Kaffegård as KG, KaffeRegion as KR
             WHERE K.partiID = P.partiID and P.foredlingsID = F.foredlingsID  and P.gårdID = KG.gårdID and KG.regionID = KR.regionID
-            {} {} {}""".format(searchProsessingSQL, searchCountrySQL, searchDescriptionSQL))
+            {} {} {}"""
+            .format(searchProsessingSQL, searchCountrySQL, searchDescriptionSQL))
     coffeeList = cursor.fetchall()
 
     # Her sjekkes det om søket har levert et resultat tilbake, og det blir printet
@@ -78,7 +80,8 @@ def søkEtterKaffe():
         wrapper = textwrap.TextWrapper(initial_indent=prefix, width=preferredWidth,
                                        subsequent_indent=' '*len(prefix))
         print(wrapper.fill(
-            "<<{}>> fra brenneriet {}".format(row[0], row[1])))
+            "<<{coffeeName}>>(brent: {burnDate}) fra brenneriet {roastery}"
+            .format(coffeeName=row['kaffenavn'], burnDate=row['brennedato'], roastery=row['kaffebrenneri'])))
 
     con.commit()
     con.close()
